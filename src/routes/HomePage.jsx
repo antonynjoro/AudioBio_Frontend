@@ -57,7 +57,7 @@ function App() {
 
     // Replace 'your-backend-endpoint' with your actual backend API endpoint
     api
-      .post("http://127.0.0.1:8000/upload/", formData, axiosConfig)
+      .post("https://audiobio-backend-3352a70b5d0a.herokuapp.com/upload/", formData, axiosConfig)
       .then((response) => {
         // Handle the response from the backend
         console.log("Recording sent successfully!");
@@ -88,7 +88,7 @@ function App() {
     const fetchProgressTime = async () => {
       try {
         const response = await api.get(
-          "http://127.0.0.1:8000/progress_time_today/",
+          "https://audiobio-backend-3352a70b5d0a.herokuapp.com/progress_time_today/",
           {   
               headers: { 
                   'Authorization': 'Bearer ' + localStorage.getItem('token'),

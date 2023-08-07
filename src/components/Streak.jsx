@@ -26,7 +26,7 @@ const Streak = ({MAX_RECORDING_DURATION, uploadComplete}) => {
 
     
                 const response = await api.get(
-                    `http://127.0.0.1:8000/get_streak/${month}/${year}`,
+                    `https://audiobio-backend-3352a70b5d0a.herokuapp.com/get_streak/${month}/${year}`,
 
                 );
                 console.log("Streak Fetched: ", response.data);

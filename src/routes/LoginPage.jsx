@@ -27,7 +27,7 @@ function LoginPage() {
   const handleSubmit = async (event) => {
     event.preventDefault();
     try {
-      const response = await api.post('http://127.0.0.1:8000/login/', 
+      const response = await api.post('https://audiobio-backend-3352a70b5d0a.herokuapp.com/login/', 
         qs.stringify({
           username: email,
           password: password,

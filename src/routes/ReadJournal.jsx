@@ -35,7 +35,7 @@ function ReadJournal() {
 
         try {
             const response = await api.get(
-                `http://127.0.0.1:8000/all_journals`
+                `https://audiobio-backend-3352a70b5d0a.herokuapp.com/all_journals`
             );
             console.log("Journal Fetched: ", response.data);
             setJournal(response.data);
@@ -57,7 +57,7 @@ function ReadJournal() {
     const deleteJournal = async (day, month, year) => {
         try {
             const response = await api.delete(
-                `http://127.0.0.1:8000/delete_journal/${day}/${month}/${year}`
+                `https://audiobio-backend-3352a70b5d0a.herokuapp.com/delete_journal/${day}/${month}/${year}`
             );
             console.log("Journal Deleted: ", response.data);
         } catch (error) {
