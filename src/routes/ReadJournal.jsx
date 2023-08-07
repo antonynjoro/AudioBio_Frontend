@@ -99,8 +99,11 @@ function ReadJournal() {
 
         <Container component="main" maxWidth="sm">
           <Stack direction="column" spacing={2} justifyContent="stretch">
-            <Typography variant="h1" fontSize={32}>
-              Read your past journal entries
+            <Typography component="h1" variant="h3" sx={{ fontWeight: "bold" }}>
+              Read Journal
+            </Typography>
+            <Typography variant="p" >
+              View your past journal entries
             </Typography>
             {journal.map((entry) => (
               <Card key={entry.id} spacing={1}>
