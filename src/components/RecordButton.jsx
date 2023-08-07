@@ -20,6 +20,8 @@ function RecordButton(props) {
     const streamRef = useRef(null); // new ref to hold the stream
     const [alertOn, setAlertOn] = useState(false);
     const recordingDuration = useRef(0); // Duration in seconds
+    const [isMicInitializing, setIsMicInitializing] = useState(false);
+
 
     // this will help adjust the size of the record button for smaller screens
     const theme = useTheme();
@@ -188,25 +190,31 @@ function RecordButton(props) {
     
   
     // Update your event handlers to call these new functions
-    const handleMouseDown = () => {
+    const handleMouseDown = async() => {
       setIsMicOn(true);
-      startRecording();
+      setIsMicInitializing(true);  // Add this line
+      await startRecording();
+      setIsMicInitializing(false);  // Add this line
+
+
     };
     const handleMouseUp = () => {
       setIsMicOn(false);
       stopRecording();
     };
 
-    const handleKeyDown = (event) => {
+    const handleKeyDown = async (event) => {
       if (event.code === 'Space' && isKeyDown===false) {
+        setIsMicInitializing(true);
         startRecording();
+        setIsMicInitializing(false);
         setIsMicOn(true);
         setIsKeyDown(true)
         
       }
     };
     const handleKeyUp = (event) => {
-      if (event.code === 'Space' && isKeyDown) {
+      if (event.code === 'Space' && isKeyDown && !isMicInitializing) {
         stopRecording();
         setIsMicOn(false);
         setIsKeyDown(false)
@@ -231,12 +239,11 @@ function RecordButton(props) {
         <Fab
           sx={styles.recordButton}
           onMouseDown={handleMouseDown}
-          onMouseUp={handleMouseUp}
+          onMouseUp={!isMicInitializing ? handleMouseUp : undefined}    // Disable when mic is initializing
           onTouchStart={handleMouseDown} // For touch screen devices
-          onTouchEnd={handleMouseUp} // For touch screen devices
-          onTouchCancel={handleMouseUp} // Handles the case when the user's finger leaves the button
-          disabled={!recorderReady}   // Disable button when recorder is not ready
-
+          onTouchEnd={!isMicInitializing ? handleMouseUp : undefined} // For touch screen devices
+          onTouchCancel={!isMicInitializing ? handleMouseUp : undefined} // Handles the case when the user's finger leaves the button
+          disabled={isMicInitializing}   // Disable button when mic is initializing
         >
           {isMicOn ? (
             <MicNoneOutlinedIcon sx={styles.micIcon} />
