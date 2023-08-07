@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import { Fab } from "@mui/material";
+import { Fab, Typography } from "@mui/material";
 import MicNoneOutlinedIcon from "@mui/icons-material/MicNoneOutlined";
 import MicOffOutlinedIcon from "@mui/icons-material/MicOffOutlined";
 import AlertDialog from "./Dialog";
@@ -251,9 +251,9 @@ function RecordButton(props) {
             <MicOffOutlinedIcon sx={styles.micIcon} />
           )}
         </Fab>
-        <p className="recording-instruction">
+        <Typography className="recording-instruction">
           Hold down the microphone/spacebar to record today’s journal entry
-        </p>
+        </Typography>
         {alertOn && <AlertDialog 
           titleText={"Ready to capture your first thoughts?"}
           contentText={"Please ensure your browser's microphone settings are switched on to begin!"}

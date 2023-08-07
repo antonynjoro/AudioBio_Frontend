@@ -75,19 +75,19 @@ const Streak = ({MAX_RECORDING_DURATION, uploadComplete}) => {
     return (
         <Stack spacing={1} sx={{px:2}}>
             <Grid container spacing={1}>
-                <Grid xs="auto">
+                {/* <Grid xs="auto">
                     <IconButton aria-label="delete" size="small">
                         <ChevronLeft fontSize="inherit" sx={{color: "#D7D1C7"}}/>
                     </IconButton>
-                </Grid>
+                </Grid> */}
                 <Grid xs>
                     <Typography align='center' >{readableMonth}</Typography>
                 </Grid>
-                <Grid xs="auto">
+                {/* <Grid xs="auto">
                     <IconButton aria-label="delete" size="small">
                         <ChevronRight fontSize="inherit" sx={{color: "#D7D1C7"}}/>
                     </IconButton>
-                </Grid>
+                </Grid> */}
             </Grid>
 
             <Stack direction={'row'} justifyContent={"center"} className="w-layout-hflex streak-container">
