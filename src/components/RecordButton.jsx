@@ -251,6 +251,7 @@ function RecordButton(props) {
           onMouseUp={handleMouseUp}
           onTouchStart={handleMouseDown} // For touch screen devices
           onTouchEnd={handleMouseUp} // For touch screen devices
+          onTouchCancel={handleMouseUp} // Handles the case when the user's finger leaves the button
           disabled={!recorderReady} // The button is disabled when the recorder is not ready
         >
           {isMicOn ? (
