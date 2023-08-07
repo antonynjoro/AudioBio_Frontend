@@ -50,8 +50,8 @@ function NavBar() {
   };
 
   return (
-    <AppBar position="static" sx={{ boxShadow: 0, px: 0 }}>
-      <Toolbar sx={{ backgroundColor: "#161725", px: 0 }}>
+    <AppBar position="static" sx={{ boxShadow: 0, px:  0 }}>
+      <Toolbar sx={{ backgroundColor: "#161725", px: 2 }}>
           <IconButton
             size="large"
             edge="start"

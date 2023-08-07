@@ -3,42 +3,12 @@ import { Fab, Typography } from "@mui/material";
 import MicNoneOutlinedIcon from "@mui/icons-material/MicNoneOutlined";
 import MicOffOutlinedIcon from "@mui/icons-material/MicOffOutlined";
 import AlertDialog from "./Dialog";
+import { useTheme } from '@mui/material/styles';
+import useMediaQuery from '@mui/material/useMediaQuery';
 
 
 
 
-const styles = {
-  recordButton: {
-    minHeight: "500px",
-    minWidth: "500px",
-    backgroundColor: "#2c2d40",
-    backgroundPosition: "50%",
-    backgroundRepeat: "no-repeat",
-    backgroundSize: "auto",
-    borderRadius: "500px",
-    justifyContent: "center",
-    alignItems: "center",
-    padding: "60px",
-    display: "flex",
-    "&:hover": {
-      border: "1px solid rgba(215, 209, 199, .2)",
-      backgroundColor: "#2c2d40",
-    },
-    "&:active": {
-      backgroundColor: "#232435",
-      borderWidth: "2px",
-      borderColor: "#d7d1c7",
-    },
-    '&:disabled': {
-      backgroundColor: 'grey',
-    },
-  },
-  micIcon: {
-    minHeight: "250px",
-    width: "auto",
-    color: "#d7d1c7",
-  },
-};
 
 function RecordButton(props) {
     const [isMicOn, setIsMicOn] = useState(false);
@@ -50,6 +20,44 @@ function RecordButton(props) {
     const streamRef = useRef(null); // new ref to hold the stream
     const [alertOn, setAlertOn] = useState(false);
     const recordingDuration = useRef(0); // Duration in seconds
+
+    // this will help adjust the size of the record button for smaller screens
+    const theme = useTheme();
+    const isSmallScreen = useMediaQuery(theme.breakpoints.down('sm'));
+
+    const styles = {
+      recordButton: {
+        minHeight: isSmallScreen ? "300px" : "500px", // adjust sizes as needed
+        minWidth: isSmallScreen ? "300px" : "500px", // adjust sizes as needed
+        backgroundColor: "#2c2d40",
+        backgroundPosition: "50%",
+        backgroundRepeat: "no-repeat",
+        backgroundSize: "auto",
+        borderRadius: "500px",
+        justifyContent: "center",
+        alignItems: "center",
+        padding: "60px",
+        display: "flex",
+        "&:hover": {
+          border: "1px solid rgba(215, 209, 199, .2)",
+          backgroundColor: "#2c2d40",
+        },
+        "&:active": {
+          backgroundColor: "#232435",
+          borderWidth: "2px",
+          borderColor: "#d7d1c7",
+        },
+        '&:disabled': {
+          backgroundColor: 'grey',
+        },
+      },
+      micIcon: {
+        minHeight: isSmallScreen ? "150px" : "250px", 
+        width: "auto",
+        color: "#d7d1c7",
+      },
+    };
+    
 
 
     /**
