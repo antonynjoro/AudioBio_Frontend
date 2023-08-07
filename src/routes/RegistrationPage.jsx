@@ -1,7 +1,7 @@
 // LoginPage.jsx
 
 import React, { useState } from "react";
-import { Button, TextField, Container, Typography, Stack } from "@mui/material";
+import { Button, TextField, Container, Typography, Stack, Link} from "@mui/material";
 import api from "../api";
 import { useNavigate } from 'react-router-dom';
 
@@ -44,8 +44,11 @@ function RegistrationPage() {
       
     <Container component="main" maxWidth="xs" >
       <Stack direction="column" spacing={2} justifyContent="left" alignItems="center" >
-      <Typography component="h1" variant="h5">
+      <Typography component="h1" variant="h3">
         Register
+      </Typography>
+      <Typography component="p" >
+        Register to start creating your first audio journal entry!
       </Typography>
       <form noValidate onSubmit={handleSubmit}>
         <TextField
@@ -92,10 +95,14 @@ function RegistrationPage() {
           fullWidth
           variant="contained"
           color="primary"
+          sx={{mt: 3, mb: 2}}
         >
-          Sign In
+          Create Account
         </Button>
       </form>
+      <Typography component="p" variant="body2">
+          Already have an account? <Link href="/login" >Sign In</Link>
+        </Typography>
       </Stack>
     </Container>
     </Stack>

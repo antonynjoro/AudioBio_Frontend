@@ -1,7 +1,7 @@
 // LoginPage.jsx
 
 import React, { useState } from "react";
-import { Button, TextField, Container, Typography, Stack } from "@mui/material";
+import { Button, TextField, Container, Typography, Stack, Link } from "@mui/material";
 import api from '../api';
 import { useNavigate } from 'react-router-dom';
 import qs from 'qs';
@@ -57,8 +57,11 @@ function LoginPage() {
       
     <Container component="main" maxWidth="xs" >
       <Stack direction="column" spacing={2} justifyContent="left" alignItems="center" >
-      <Typography component="h1" variant="h5">
-        Sign in
+      <Typography component="h1" variant="h3">
+        Sign In
+      </Typography>
+      <Typography component="p" >
+        Sign in to continue to your audio journal!
       </Typography>
       <form noValidate onSubmit={handleSubmit}>
         <TextField
@@ -96,6 +99,9 @@ function LoginPage() {
           Sign In
         </Button>
       </form>
+      <Typography component="p" variant="body2">
+          Don't have an account? <Link href="/register">Register</Link>
+      </Typography>
       </Stack>
     </Container>
     </Stack>

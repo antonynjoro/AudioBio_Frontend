@@ -21,8 +21,32 @@ const darkTheme = createTheme( {
     text: {
       primary: '#d7d1c7',
     },
+    link: {
+      main: '#e040fb',
+    },
     error: {
       main: '#ef476f',
+    },
+  },
+  typography: {
+    fontFamily: '"PT Sans", "Helvetica", "Arial", sans-serif',
+    h1: {
+      fontFamily: '"Crimson Text", "Helvetica", "Arial", sans-serif',
+    },
+    h2: {
+      fontFamily: '"Crimson Text", "Helvetica", "Arial", sans-serif',
+    },
+    h3: {
+      fontFamily: '"Crimson Text", "Helvetica", "Arial", sans-serif',
+    },
+    h4: {
+      fontFamily: '"Crimson Text", "Helvetica", "Arial", sans-serif',
+    },
+    h5: {
+      fontFamily: '"Crimson Text", "Helvetica", "Arial", sans-serif',
+    },
+    h6: {
+      fontFamily: '"Crimson Text", "Helvetica", "Arial", sans-serif',
     },
   },
 
