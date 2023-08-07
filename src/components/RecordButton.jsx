@@ -160,6 +160,12 @@ function RecordButton(props) {
           mediaRecorder.current.stop();
 
           recordingDuration.current = ((Date.now() - startTime) / 1000); // Duration in seconds
+          // Ignore recordings that are shorter than 1 second
+          if (recordingDuration.current < 1) {
+            console.log('Recording too short, ignoring.');
+            return;
+          }
+
           props.setProgressTime(prevProgressTime => prevProgressTime + recordingDuration.current);
         }
         // Stop the stream
