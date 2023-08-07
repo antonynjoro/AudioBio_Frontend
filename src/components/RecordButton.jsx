@@ -72,32 +72,34 @@ function RecordButton(props) {
      * @return {void}
      */
     const initRecorder = () => {
-      navigator.mediaDevices.getUserMedia({ audio: true })
-        .then((stream) => {
-          streamRef.current = stream; // store the stream
-          const recorder = new MediaRecorder(stream);
-          mediaRecorder.current = recorder;
+      return new Promise((resolve, reject) => {
+        navigator.mediaDevices.getUserMedia({ audio: true })
+          .then((stream) => {
+            streamRef.current = stream;
+            const recorder = new MediaRecorder(stream);
+            mediaRecorder.current = recorder;
     
-          recorder.ondataavailable = (event) => {
-            recordedChunks.current.push(event.data);
-          };
+            recorder.ondataavailable = (event) => {
+              recordedChunks.current.push(event.data);
+            };
     
-          recorder.onstop = () => {
-            const blob = new Blob(recordedChunks.current, { type: 'audio/webm' });
-
-            
-
-            props.handleSendData(blob, recordingDuration.current);
-            recordedChunks.current = [];
-          };
-          setRecorderReady(true)
-        })
-        .catch((error) => {
-          console.error('Error accessing microphone:', error.message);
-          props.handleError(`Error accessing microphone. Turn on the microphone in the settings to begin`);
-          setAlertOn(true)
-        });
+            recorder.onstop = () => {
+              const blob = new Blob(recordedChunks.current, { type: 'audio/webm' });
+              props.handleSendData(blob, recordingDuration.current);
+              recordedChunks.current = [];
+            };
+            setRecorderReady(true)
+            resolve();
+          })
+          .catch((error) => {
+            console.error('Error accessing microphone:', error.message);
+            props.handleError(`Error accessing microphone. Turn on the microphone in the settings to begin`);
+            setAlertOn(true);
+            reject();
+          });
+      });
     };
+    
 
     useEffect(() => {
       console.log("Recorder Ready(indipendent useefect): ", recorderReady);
@@ -115,7 +117,6 @@ function RecordButton(props) {
      * @return {void}
      */
     useEffect(() => {
-      initRecorder();
       
       console.log("Recorder Ready (int recorder UseEffect)",recorderReady)
 
@@ -128,49 +129,18 @@ function RecordButton(props) {
     }, []);
     
 
-    /**
-     * UseEffect hook for handling visibility changes of the document.
-     * 
-     * This effect runs only once upon component mounting. It sets up an event listener 
-     * on the document for visibility changes. If the document becomes hidden, it stops 
-     * the MediaRecorder and the audio stream. If the document becomes visible again, 
-     * it re-initializes the MediaRecorder.
-     * 
-     * It also defines a cleanup function to remove the event listener when the component 
-     * is unmounted.
-     * 
-     * @return {void}
-     */
-    useEffect(() => {
-      const handleVisibilityChange = () => {
-        if (document.hidden) {
-          // If the document is not visible, stop recording and stop the stream
-          if (mediaRecorder.current && mediaRecorder.current.state === 'recording') {
-            mediaRecorder.current.stop();
-          }
-          if (streamRef.current) {
-            streamRef.current.getTracks().forEach((track) => track.stop());
-          }
-        } else {
-          // If the document becomes visible, initialize the recorder again
-          initRecorder();
-          console.log("Media reenabled due to clicking in")
-        }
-      };
-    
-      // Listen for visibility change events
-      document.addEventListener("visibilitychange", handleVisibilityChange);
-    
-      // Make sure to remove event listeners when the component unmounts
-      return () => {
-        document.removeEventListener("visibilitychange", handleVisibilityChange);
-      };
-    }, []);
-    
-    
 
-    const startRecording = () => {
-      if (recorderReady && mediaRecorder.current) {
+
+    const startRecording = async () => {
+      if (!recorderReady) {
+        try {
+          await initRecorder();
+        } catch (error) {
+          console.error('Error initializing recorder:', error);
+          return;
+        }
+      }
+      if (mediaRecorder.current) {
         mediaRecorder.current.start();
         setStartTime(Date.now()); // Set the startTime when recording starts
       } else {
@@ -188,6 +158,13 @@ function RecordButton(props) {
       try {
         if (mediaRecorder.current && mediaRecorder.current.state === 'recording') {
           mediaRecorder.current.stop();
+
+          recordingDuration.current = ((Date.now() - startTime) / 1000); // Duration in seconds
+          props.setProgressTime(prevProgressTime => prevProgressTime + recordingDuration.current);
+        }
+        // Stop the stream
+        if (streamRef.current) {
+          streamRef.current.getTracks().forEach((track) => track.stop());
         }
       } catch (error) {
         console.error('Error stopping recording:', error);
@@ -252,7 +229,6 @@ function RecordButton(props) {
           onTouchStart={handleMouseDown} // For touch screen devices
           onTouchEnd={handleMouseUp} // For touch screen devices
           onTouchCancel={handleMouseUp} // Handles the case when the user's finger leaves the button
-          disabled={!recorderReady} // The button is disabled when the recorder is not ready
         >
           {isMicOn ? (
             <MicNoneOutlinedIcon sx={styles.micIcon} />
