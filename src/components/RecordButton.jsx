@@ -282,8 +282,9 @@ function RecordButton(props) {
           sx={styles.recordButton}
           onMouseDown={handleMouseDown}
           onMouseUp={!isMicInitializing ? handleMouseUp : undefined}    // Disable when mic is initializing
-          onMouseLeave={!isMicInitializing ? handleMouseLeave : undefined} 
           onTouchStart={handleMouseDown} // For touch screen devices
+          onTouchEnd={handleMouseUp} // Handle finger lift on touch devices
+          onTouchCancel={handleMouseUp} // Handle touch interruption
           disabled={isMicInitializing}   // Disable button when mic is initializing
         >
           {isMicOn ? (
