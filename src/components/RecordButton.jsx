@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useCallback } from "react";
 import { Fab, Typography } from "@mui/material";
 import MicNoneOutlinedIcon from "@mui/icons-material/MicNoneOutlined";
 import MicOffOutlinedIcon from "@mui/icons-material/MicOffOutlined";
@@ -16,11 +16,11 @@ function RecordButton(props) {
     const recordedChunks = useRef([]);
     const [startTime, setStartTime] = useState(null); // Define the startTime state
     const [isKeyDown, setIsKeyDown] = useState(false)
-    const [recorderReady, setRecorderReady] = useState(false);
     const streamRef = useRef(null); // new ref to hold the stream
     const [alertOn, setAlertOn] = useState(false);
     const recordingDuration = useRef(0); // Duration in seconds
     const [isMicInitializing, setIsMicInitializing] = useState(false);
+    
 
 
     // this will help adjust the size of the record button for smaller screens
@@ -67,11 +67,11 @@ function RecordButton(props) {
      * 
      * The function requests access to the user's microphone and sets up the MediaRecorder 
      * instance with necessary event handlers for data availability and stopping the recorder. 
-     * In case of a successful setup, the function updates the `recorderReady` state to true. 
+     * In case of a successful setup, the function returns a Promise that resolves with no value.
      * If there is an error in accessing the microphone, the error is caught and passed to 
-     * the error handling function from the props.
+     * the error handling function from the props, and the Promise rejects.
      * 
-     * @return {void}
+     * @return {Promise<void>}
      */
     const initRecorder = () => {
       return new Promise((resolve, reject) => {
@@ -90,7 +90,7 @@ function RecordButton(props) {
               props.handleSendData(blob, recordingDuration.current);
               recordedChunks.current = [];
             };
-            setRecorderReady(true)
+
             resolve();
           })
           .catch((error) => {
@@ -103,24 +103,18 @@ function RecordButton(props) {
     };
     
 
-    useEffect(() => {
-      console.log("Recorder Ready(indipendent useefect): ", recorderReady);
-    }, [recorderReady]);
-    
-    
 
     /**
-     * UseEffect hook for initializing the MediaRecorder on component mount.
+     * UseEffect hook for cleaning up MediaRecorder on component unmount.
      * 
-     * This effect runs only once upon component mounting. It calls the `initRecorder` function 
-     * to set up the MediaRecorder instance. It also defines a cleanup function that stops 
-     * the MediaRecorder if it's recording when the component is unmounted.
+     * This effect runs only once upon component mounting. It defines a cleanup function that stops 
+     * the MediaRecorder if it's recording when the component is unmounted. This is done to prevent 
+     * memory leaks and unexpected behaviors.
      * 
      * @return {void}
      */
     useEffect(() => {
       
-      console.log("Recorder Ready (int recorder UseEffect)",recorderReady)
 
       // Clean up function
       return () => {
@@ -132,58 +126,78 @@ function RecordButton(props) {
     
 
 
-
+    /**
+     * Starts recording audio from the user's microphone.
+     * 
+     * The function first stops the tracks of any existing stream. It then initializes the MediaRecorder 
+     * and starts recording. If there is an error during this process, it is logged to the console.
+     * The start time of the recording is also tracked when the recording begins.
+     * 
+     * @return {Promise<void>}
+     */
     const startRecording = async () => {
-      if (!recorderReady) {
-        try {
-          await initRecorder();
-        } catch (error) {
-          console.error('Error initializing recorder:', error);
-          return;
-        }
+      // Stop the old stream's tracks if it exists
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach((track) => track.stop());
       }
+
+      // Get a new stream and initialize the recorder with it
+      try {
+        await initRecorder();
+      } catch (error) {
+        console.error('Error initializing recorder:', error);
+        return;
+      }
+
       if (mediaRecorder.current) {
-        mediaRecorder.current.start();
-        setStartTime(Date.now()); // Set the startTime when recording starts
+        try {
+          mediaRecorder.current.start();
+          setStartTime(Date.now()); // Set the startTime when recording starts
+        } catch (error) {
+          console.error('Error starting recording:', error);
+        }
       } else {
         console.error('Media recorder not ready yet');
-        console.log("Start Recording Recorder Ready: ", recorderReady);
       }
     };
-  
-    const stopRecording = () => {
 
-      // Immediately update the progressTime state
-
-
+    /**
+     * Stops the ongoing recording.
+     * 
+     * If the MediaRecorder is recording, the recording is stopped. The stream's tracks are also stopped. 
+     * The duration of the recording is then calculated. If the recording is shorter than 1 second, it is ignored. 
+     * Otherwise, the recording's duration is added to the total recording progress.
+     * 
+     * @return {Promise<void>}
+     */
+    const stopRecording = async () => {
       setIsMicOn(false);
-      try {
-        if (mediaRecorder.current && mediaRecorder.current.state === 'recording') {
+      if (mediaRecorder.current && mediaRecorder.current.state === 'recording') {
+        try {
           mediaRecorder.current.stop();
-
+    
+          // Stop the stream
+          if (streamRef.current) {
+            streamRef.current.getTracks().forEach((track) => track.stop());
+          }
+    
           recordingDuration.current = ((Date.now() - startTime) / 1000); // Duration in seconds
+    
           // Ignore recordings that are shorter than 1 second
           if (recordingDuration.current < 1) {
             console.log('Recording too short, ignoring.');
             return;
           }
-
+    
           props.setProgressTime(prevProgressTime => prevProgressTime + recordingDuration.current);
+    
+        } catch (error) {
+          console.error('Error stopping recording:', error);
+          props.handleError('Error stopping recording:', error);
         }
-        // Stop the stream
-        if (streamRef.current) {
-          streamRef.current.getTracks().forEach((track) => track.stop());
-        }
-      } catch (error) {
-        console.error('Error stopping recording:', error);
-        props.handleError('Error stopping recording:', error);
       }
-      
-      recordingDuration.current = ((Date.now() - startTime) / 1000); // Duration in seconds
-
-      props.setProgressTime(prevProgressTime => prevProgressTime + recordingDuration.current);
-      
     };
+    
     
 
   
@@ -192,9 +206,9 @@ function RecordButton(props) {
     // Update your event handlers to call these new functions
     const handleMouseDown = async() => {
       setIsMicOn(true);
-      setIsMicInitializing(true);  // Add this line
+      setIsMicInitializing(true);  
       await startRecording();
-      setIsMicInitializing(false);  // Add this line
+      setIsMicInitializing(false);  
 
 
     };
@@ -203,23 +217,26 @@ function RecordButton(props) {
       stopRecording();
     };
 
-    const handleKeyDown = async (event) => {
-      if (event.code === 'Space' && isKeyDown===false) {
+    const handleKeyDown = useCallback( async (event) => {
+      if (event.code === 'Space' && !isKeyDown && !isMicInitializing) {
         setIsMicInitializing(true);
-        startRecording();
+        await startRecording();
         setIsMicInitializing(false);
         setIsMicOn(true);
         setIsKeyDown(true)
         
       }
-    };
-    const handleKeyUp = (event) => {
+    }, [isKeyDown, isMicInitializing]);
+
+    const handleKeyUp = useCallback(async (event) => {
       if (event.code === 'Space' && isKeyDown && !isMicInitializing) {
-        stopRecording();
+        setIsMicInitializing(true);
+        await stopRecording();
+        setIsMicInitializing(false);
         setIsMicOn(false);
         setIsKeyDown(false)
       }
-    };
+    }, [isKeyDown, isMicInitializing]);
   
     useEffect(() => {
      
@@ -230,7 +247,7 @@ function RecordButton(props) {
         window.removeEventListener('keydown', handleKeyDown);
         window.removeEventListener('keyup', handleKeyUp);
       };
-    }, [isKeyDown, recorderReady]);
+    }, [handleKeyDown, handleKeyUp]);
   
    
   
@@ -252,7 +269,7 @@ function RecordButton(props) {
           )}
         </Fab>
         <Typography className="recording-instruction">
-          Hold down the microphone/spacebar to record today’s journal entry
+          Hold down the microphone{!isSmallScreen && "/spacebar"} to record today’s journal entry
         </Typography>
         {alertOn && <AlertDialog 
           titleText={"Ready to capture your first thoughts?"}
