@@ -214,7 +214,7 @@ function RecordButton(props) {
         await startRecording();
         setIsMicInitializing(false);
         setIsMicOn(true);
-      }, 200);  // Adjust the delay as needed
+      }, 50);  // Adjust the delay as needed
     };
 
 
