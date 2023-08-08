@@ -20,6 +20,8 @@ function RecordButton(props) {
     const [alertOn, setAlertOn] = useState(false);
     const recordingDuration = useRef(0); // Duration in seconds
     const [isMicInitializing, setIsMicInitializing] = useState(false);
+    const [touchStartPos, setTouchStartPos] = useState(null);
+    const [touchEndPos, setTouchEndPos] = useState(null);
     
 
 
@@ -255,8 +257,27 @@ function RecordButton(props) {
       };
     }, [handleKeyDown, handleKeyUp]);
   
+    const handleTouchStart = (event) => {
+      setTouchStartPos({
+        x: event.touches[0].clientX,
+        y: event.touches[0].clientY,
+      });
+    };
+    
+    const handleTouchMove = (event) => {
+      setTouchEndPos({
+        x: event.touches[0].clientX,
+        y: event.touches[0].clientY,
+      });
+    };
+    
    
     const handleTouchEnd = () => {
+       // Consider it a swipe if the net movement exceeds a threshold (e.g. 50 pixels)
+      if (touchStartPos && touchEndPos && Math.hypot(touchStartPos.x - touchEndPos.x, touchStartPos.y - touchEndPos.y) > 50) {
+        // Ignore the touch event, it's a swipe
+        return;
+      }
       if (isMicOn && !isMicInitializing) { // Check if the mic is on and not initializing
         setIsMicInitializing(true);
         stopRecording().then(() => setIsMicInitializing(false));
