@@ -203,15 +203,21 @@ function RecordButton(props) {
   
     
   
-    // Update your event handlers to call these new functions
-    const handleMouseDown = async() => {
-      setIsMicOn(true);
-      setIsMicInitializing(true);  
-      await startRecording();
-      setIsMicInitializing(false);  
-
-
+    const handleMouseDown = () => {
+      // Don't start recording if the mic is initializing or if it's already on
+      if (isMicInitializing || isMicOn) return;
+    
+      setIsMicInitializing(true);
+    
+      // Add a delay before starting the recording
+      setTimeout(async () => {
+        await startRecording();
+        setIsMicInitializing(false);
+        setIsMicOn(true);
+      }, 200);  // Adjust the delay as needed
     };
+
+
     const handleMouseUp = () => {
       setIsMicOn(false);
       stopRecording();
