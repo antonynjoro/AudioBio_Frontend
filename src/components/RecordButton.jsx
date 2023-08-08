@@ -250,6 +250,25 @@ function RecordButton(props) {
     }, [handleKeyDown, handleKeyUp]);
   
    
+    const handleTouchEnd = () => {
+      if (isMicOn && !isMicInitializing) { // Check if the mic is on and not initializing
+        setIsMicInitializing(true);
+        stopRecording().then(() => setIsMicInitializing(false));
+        setIsMicOn(false);
+      }
+    };
+
+    useEffect(() => {
+      document.addEventListener('touchend', handleTouchEnd, { passive: false });
+      document.addEventListener('touchcancel', handleTouchEnd, { passive: false });
+    
+      return () => {
+        document.removeEventListener('touchend', handleTouchEnd);
+        document.removeEventListener('touchcancel', handleTouchEnd);
+      };
+    }, [handleTouchEnd]);
+    
+
   
     return (
       <div className="record-button-container">
@@ -258,8 +277,6 @@ function RecordButton(props) {
           onMouseDown={handleMouseDown}
           onMouseUp={!isMicInitializing ? handleMouseUp : undefined}    // Disable when mic is initializing
           onTouchStart={handleMouseDown} // For touch screen devices
-          onTouchEnd={!isMicInitializing ? handleMouseUp : undefined} // For touch screen devices
-          onTouchCancel={!isMicInitializing ? handleMouseUp : undefined} // Handles the case when the user's finger leaves the button
           disabled={isMicInitializing}   // Disable button when mic is initializing
         >
           {isMicOn ? (
