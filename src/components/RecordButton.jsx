@@ -22,6 +22,8 @@ function RecordButton(props) {
     const [isMicInitializing, setIsMicInitializing] = useState(false);
     const [touchStartPos, setTouchStartPos] = useState(null);
     const [touchEndPos, setTouchEndPos] = useState(null);
+    const [wakeLock, setWakeLock] = useState(null);
+
     
 
 
@@ -123,6 +125,7 @@ function RecordButton(props) {
         if (mediaRecorder.current && mediaRecorder.current.state === 'recording') {
           mediaRecorder.current.stop();
         }
+        releaseWakeLock();
       };
     }, []);
     
@@ -139,6 +142,9 @@ function RecordButton(props) {
      */
     const startRecording = async () => {
       // Stop the old stream's tracks if it exists
+
+      await requestWakeLock();
+
       if (streamRef.current) {
         streamRef.current.getTracks().forEach((track) => track.stop());
       }
@@ -173,6 +179,7 @@ function RecordButton(props) {
      * @return {Promise<void>}
      */
     const stopRecording = async () => {
+      releaseWakeLock();
       setIsMicOn(false);
       if (mediaRecorder.current && mediaRecorder.current.state === 'recording') {
         try {
@@ -294,6 +301,27 @@ function RecordButton(props) {
         document.removeEventListener('touchcancel', handleTouchEnd);
       };
     }, [handleTouchEnd]);
+
+    const requestWakeLock = async () => {
+      if ("wakeLock" in navigator) {
+        try {
+          const lock = await navigator.wakeLock.request("screen");
+          setWakeLock(lock);
+        } catch (err) {
+          console.error(
+            `Could not obtain wake lock: ${err.name}, ${err.message}`
+          );
+        }
+      }
+    };
+
+    const releaseWakeLock = () => {
+      if (wakeLock) {
+        wakeLock.release().then(() => {
+          setWakeLock(null);
+        });
+      }
+    };
     
 
   
