@@ -82,7 +82,7 @@ function NavBar() {
             <MenuItem onClick={handleReadDiary} disabled={location.pathname === '/read'}>Read Diary Entry</MenuItem>
           </Menu>
         <Box sx={{ flexGrow: 1 }}>
-          <img src={logo} alt="" className="image" />
+          <img src={logo} alt="" className="image logo" />
         </Box>
         {auth && (
           <div>

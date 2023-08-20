@@ -5,6 +5,7 @@ import { Button, TextField, Container, Typography, Stack, Link } from "@mui/mate
 import api from '../api';
 import { useNavigate } from 'react-router-dom';
 import qs from 'qs';
+import logo from "../images/audiobio_logo_light.svg";
 
 
 
@@ -57,6 +58,7 @@ function LoginPage() {
       
     <Container component="main" maxWidth="xs" >
       <Stack direction="column" spacing={2} justifyContent="left" alignItems="center" >
+      <img src={logo} alt="logo" height="150px" width="200px"/>
       <Typography component="h1" variant="h3">
         Sign In
       </Typography>
