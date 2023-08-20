@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import logo from "../images/Logo.svg";
 import NavBar from "../components/NavBar";
 import RecordButton from "../components/RecordButton.jsx";
 import Streak from "../components/Streak.jsx";

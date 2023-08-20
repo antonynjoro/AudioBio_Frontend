@@ -8,7 +8,7 @@ import MenuIcon from '@mui/icons-material/Menu';
 import AccountCircle from '@mui/icons-material/AccountCircle';
 import MenuItem from '@mui/material/MenuItem';
 import Menu from '@mui/material/Menu';
-import logo from "../images/Logo.svg";
+import logo from "../images/audiobio_logo_light.svg";
 
 function NavBar() {
   const [auth, setAuth] = useState(true);
